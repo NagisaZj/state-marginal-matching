@@ -6,7 +6,7 @@ from gym import Env
 
 
 class PointEnv_SMM(Env):
-    def __init__(self,goal_prior=None,shaped_rewards=None,distance_threshold=None,init_object_pos_prior=None,goal_radius=1,goal_angle=np.pi,reward_radius=0.2,num_goals_sample=100):
+    def __init__(self,goal_prior=None,sample_goal = None,shaped_rewards=None,distance_threshold=None,init_object_pos_prior=None,terminate_upon_success=None,terminate_upon_failure=None,goal_radius=1,goal_angle=np.pi,reward_radius=0.2,num_goals_sample=100):
         '''
 
         :param goal_radius: the radius of a circle, on which goals are distributed.
