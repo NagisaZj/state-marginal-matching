@@ -60,6 +60,33 @@ default_test_config = dict(
   ),
 )
 
+point_test_config = dict(
+  env_kwargs=dict(
+    goal_prior=[1.12871704, 0.46767739, 0.42], # Test-time object goal position
+    sample_goal=False,
+    shaped_rewards=['object_off_table', 'object_goal_indicator', 'object_gripper_indicator', 'action_penalty'],
+    terminate_upon_success=False,
+    terminate_upon_failure=False,
+  ),
+  test_goal=[1.12871704, 0.46767739, 0.42],
+  algo_kwargs=dict(
+    max_path_length=50,  # Maximum path length in the environment
+    num_episodes=100,  # Number of test episodes
+    reward_scale=100,  # Weight of the extrinsic reward relative to the SAC reward
+    collection_mode='episodic',  # Each epoch is one episode
+    num_updates_per_episode=0,  # Evaluate without additional training
+  ),
+  smm_kwargs=dict(
+    update_p_z_prior_coeff=1,  # p(z) coeff for SMM posterior adaptation (higher value corresponds to more uniform p(z))
+
+    # Turn off SMM reward.
+    state_entropy_coeff=0,
+    latent_entropy_coeff=0,
+    latent_conditional_entropy_coeff=0,
+    discriminator_lr=0,
+  ),
+)
+
 # Default visualization settings
 default_visualize_config = dict(
   params_pkl='params.pkl',  # Pickle file to load policy from

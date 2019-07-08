@@ -2,7 +2,7 @@ import click
 import json
 import os
 
-from configs.default import default_test_config
+from configs.default import default_test_config,point_test_config
 from experiment_utils import load_experiment, overwrite_dict
 from rlkit.launchers.launcher_util import setup_logger, create_exp_name
 import rlkit.torch.pytorch_util as ptu
