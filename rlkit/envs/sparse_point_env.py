@@ -34,7 +34,10 @@ class PointEnv_SMM(Env):
             dis =  (x ** 2 + y ** 2) ** 0.5
             if dis < self.reward_raidus:
                 rew = rew + 1
-        return np.sqrt(rew/10)
+        if rew>0:
+            return np.sqrt(rew)/10
+        else:
+            return -1
 
     def reset(self):
         self._state = np.array([0, 0])
@@ -47,6 +50,74 @@ class PointEnv_SMM(Env):
         done = False
         ob = np.copy(self._state)
         return ob, reward, done, dict()
+
+
+class PointEnv_SMM_evolution(Env):
+    def __init__(self,goal_prior=None,sample_goal = None,shaped_rewards=None,distance_threshold=None,init_object_pos_prior=None,terminate_upon_success=None,terminate_upon_failure=None,goal_radius=1,goal_angle=np.pi,reward_radius=0.2,num_goals_sample=100):
+        '''
+
+        :param goal_radius: the radius of a circle, on which goals are distributed.
+        :param goal_angle:  the maximal angle that goals possibly exists,(0,2*pi)
+        :param reward_radius: maximum distance from goal to state to get reward
+        :param num_goals_sample: sample a set of goals to calculate rew
+        '''
+        self.goal_radius = goal_radius
+        self.goal_angle = goal_angle
+        self.reward_raidus = reward_radius
+        self.num_goals_sample = num_goals_sample
+        #angles = np.linspace(0, self.goal_angle, num=self.num_goals_sample)
+        angles = np.random.rand(self.num_goals_sample)*self.goal_angle
+        xs = self.goal_radius * np.cos(angles)
+        ys = self.goal_radius * np.sin(angles)
+        self.goals = np.stack([xs, ys], axis=1)
+        self.reset()
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(2,))
+        self.action_space = spaces.Box(low=-0.1, high=0.1, shape=(2,))
+        self.triggers = np.zeros((self.num_goals_sample,),dtype=np.float32)
+        self.fake_goals = np.zeros((self.num_goals_sample,2),dtype=np.float32)
+
+
+
+    def pull_trigger(self,state):
+        for i in range(self.num_goals_sample):
+            x = state[0] - self.goals[i,0]
+            y = state[1] - self.goals[i,1]
+            dis =  (x ** 2 + y ** 2) ** 0.5
+            if dis < self.reward_raidus:
+                self.triggers[i] = 1
+                xx = self.fake_goals[i,0] - self.goals[i,0]
+                yy = self.fake_goals[i, 1] - self.goals[i, 1]
+                ddis = (xx ** 2 + yy ** 2) ** 0.5
+                if dis<ddis:
+                    self.fake_goals[i,:] = np.copy(state)
+
+    def cal_rew(self,state):
+        rew = 0
+        for i in range(self.num_goals_sample):
+            if self.triggers[i]>0:
+                x = state[0] - self.fake_goals[i,0]
+                y = state[1] - self.fake_goals[i,1]
+                dis =  (x ** 2 + y ** 2) ** 0.5
+                if dis < self.reward_raidus:
+                    rew = rew + 1
+        if rew>0:
+            return np.sqrt(rew/np.sum(self.triggers))
+        else:
+            return -1
+
+    def reset(self):
+        self._state = np.array([0, 0])
+        return np.copy(self._state)
+
+    def step(self, action):
+        action = np.clip(action,-0.1,0.1)
+        self._state = self._state + action
+        self.pull_trigger(self._state)
+        reward = self.cal_rew(self._state)
+        done = False
+        ob = np.copy(self._state)
+        return ob, reward, done, dict()
+
 
 #@register_env('point-robot')
 class PointEnv(Env):
@@ -166,11 +237,13 @@ class SparsePointEnv(PointEnv):
 
 
 if __name__ =="__main__":
-    env = SMMEnv()
+    env = PointEnv_SMM_evolution()
     x = np.linspace(-1,1,100)
     y = np.linspace(-1,1,100)
     xm,ym=np.meshgrid(x,y)
     z = np.zeros((100,100),dtype=np.float32)
+    env.pull_trigger(np.array([0,1]))
+    env.pull_trigger(np.array([0.6, 0.8]))
     for i in range(100):
         for j in range(100):
             z[i,j] = env.cal_rew(np.array([x[i],y[j]],dtype=np.float32))
