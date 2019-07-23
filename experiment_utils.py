@@ -4,7 +4,8 @@ import json
 from rlkit.envs.manipulation_env import ManipulationEnv
 from rlkit.envs.star_env import StarEnv
 from rlkit.envs.wrappers import NormalizedBoxEnv, AugmentedBoxObservationShapeEnv
-from rlkit.envs.sparse_point_env import PointEnv_SMM
+from rlkit.envs.sparse_point_env import PointEnv_SMM,PointEnv_SMM_evolution
+from rlkit.envs.ant_goal import AntGoalEnv_SMM
 
 def create_env(env_id, env_kwargs, num_skills=0):
     if env_id == 'ManipulationEnv':
@@ -16,6 +17,12 @@ def create_env(env_id, env_kwargs, num_skills=0):
     elif env_id == 'PointEnv':
         env = NormalizedBoxEnv(PointEnv_SMM(**env_kwargs))
         training_env = NormalizedBoxEnv(PointEnv_SMM(**env_kwargs))
+    elif env_id == 'PointEnv_evolve':
+        env = NormalizedBoxEnv(PointEnv_SMM_evolution(**env_kwargs))
+        training_env = NormalizedBoxEnv(PointEnv_SMM_evolution(**env_kwargs))
+    elif env_id == 'ant_goal':
+        env = NormalizedBoxEnv(AntGoalEnv_SMM(**env_kwargs))
+        training_env = NormalizedBoxEnv(AntGoalEnv_SMM(**env_kwargs))
     else:
         raise NotImplementedError('Unrecognized environment:', env_id)
 
@@ -120,6 +127,19 @@ def get_exp_id(variant):
         exp_id = '{}-{}-{}/{}'.format(
             variant['env_id'],
             variant['env_kwargs']['goal_radius'],
+            variant['env_kwargs']['reward_radius'],
+            variant['algo'] + algo_suffix
+        )
+    elif variant['env_id'] == 'PointEnv_evolve':
+        exp_id = '{}-{}-{}/{}'.format(
+            variant['env_id'],
+            variant['env_kwargs']['goal_radius'],
+            variant['env_kwargs']['reward_radius'],
+            variant['algo'] + algo_suffix
+        )
+    elif variant['env_id'] == 'ant_goal':
+        exp_id = '{}-{}/{}'.format(
+            variant['env_id'],
             variant['env_kwargs']['reward_radius'],
             variant['algo'] + algo_suffix
         )

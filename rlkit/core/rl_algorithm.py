@@ -2,7 +2,7 @@ import abc
 import pickle
 import time
 from collections import OrderedDict
-
+import matplotlib.pyplot as plt
 import gtimer as gt
 import numpy as np
 
@@ -182,7 +182,21 @@ class RLAlgorithm(metaclass=abc.ABCMeta):
             set_to_eval_mode(self.env)
             self._try_to_eval(epoch)
             gt.stamp('eval')
+
+            self.print_env(epoch)
             self._end_epoch(epoch)
+
+    def print_env(self,epoch):
+        if hasattr(self.env, "triggers"):
+            print(np.sum(self.env.triggers))
+            plt.figure()
+            plt.scatter(self.env.goals[:, 0], self.env.goals[:, 1], color='b')
+            plt.scatter(self.env.fake_goals[:, 0], self.env.fake_goals[:, 1], color='r')
+            plt.savefig('./outtem/4/%d.png' % epoch)
+            plt.close()
+
+
+
 
     def train_batch(self, start_epoch):
         self._current_path_builder = PathBuilder()
@@ -262,6 +276,7 @@ class RLAlgorithm(metaclass=abc.ABCMeta):
             set_to_eval_mode(self.env)
             self._try_to_eval(episode)
             gt.stamp('eval')
+
             self._end_epoch(episode)
 
         # Evaluate over all episodes.
@@ -548,12 +563,12 @@ class RLAlgorithm(metaclass=abc.ABCMeta):
             statistics.update(eval_util.get_generic_path_information(
                 self._exploration_paths, stat_prefix="Exploration",
             ))
-        if hasattr(self.env, "log_diagnostics"):
+        '''if hasattr(self.env, "log_diagnostics"):
             self.env.log_diagnostics(test_paths, logger=logger)
         if hasattr(self.env, "get_diagnostics"):
             env_statistics = self.env.get_diagnostics(test_paths)
             if env_statistics is not None:
-                statistics.update(env_statistics)
+                statistics.update(env_statistics)'''
 
         average_returns = eval_util.get_average_returns(test_paths)
         statistics['AverageReturn'] = average_returns

@@ -13,10 +13,12 @@ def pprint():
             plt.plot(a[-1, 0], a[-1, 1], '-x', color='b')
 
             b = np.linspace(0, np.pi, 100)
-
+            b[25:50] = b[25:50] + np.pi / 4
+            b[50:75] = b[50:75] + np.pi / 4 * 2
+            b[75:100] = b[75:100] + np.pi / 4 * 3
             xs = np.cos(b)
             ys = np.sin(b)
-            plt.plot(xs, ys, color='r')
+            plt.scatter(xs, ys, color='r')
 
     plt.show()
 

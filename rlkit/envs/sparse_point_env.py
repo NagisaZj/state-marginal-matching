@@ -65,8 +65,10 @@ class PointEnv_SMM_evolution(Env):
         self.goal_angle = goal_angle
         self.reward_raidus = reward_radius
         self.num_goals_sample = num_goals_sample
-        #angles = np.linspace(0, self.goal_angle, num=self.num_goals_sample)
-        angles = np.random.rand(self.num_goals_sample)*self.goal_angle
+        angles = np.linspace(0, self.goal_angle, num=self.num_goals_sample)
+        #for i in range(3):
+        #    angles[25*(i+1):25*(i+2)] = angles[25*(i+1):25*(i+2)] + np.pi/4*(i+1)
+        #angles = np.random.rand(self.num_goals_sample)*self.goal_angle
         xs = self.goal_radius * np.cos(angles)
         ys = self.goal_radius * np.sin(angles)
         self.goals = np.stack([xs, ys], axis=1)
@@ -79,6 +81,8 @@ class PointEnv_SMM_evolution(Env):
 
 
     def pull_trigger(self,state):
+        if sum(self.triggers)==self.num_goals_sample:
+            return
         for i in range(self.num_goals_sample):
             x = state[0] - self.goals[i,0]
             y = state[1] - self.goals[i,1]

@@ -80,28 +80,17 @@ def experiment(log_dir, variant_overwrite, cpu=False):
     #plt.plot(3, 2)
     #plt.show()
     print(env.reset())
-    print(samples[0]['observations'])
+    print(samples[0]['observations'][:,:2])
     i=0
     for path in samples:
 
-        np.save('./outtem/out%i.npy'%i,path['observations'])
+        np.save('./outtem/out%i.npy'%i,path['observations'][:,:2])
         i = i+1
     #print(algorithm.policy.get_action(np.array([0,0])))
-    from rlkit.samplers.util import rollout
-    from rlkit.samplers.in_place import InPlacePathSampler
-    #path=rollout(env,algorithm.eval_policy,50)
-    eval_sampler = InPlacePathSampler(
-        env=env,
-        policy=algorithm.eval_policy,
-        max_samples=100,
-        max_path_length=50,
-    )
-    path = algorithm.eval_sampler.obtain_samples()
-    print(path[0]['observations'])
 
 @click.command()
 @click.argument('log-dir', default=None)
-@click.option('--config', default='configs/test_point.json', help="Test config file")
+@click.option('--config', default='configs/test_ant_goal.json', help="Test config file")
 @click.option('--cpu', default=False, is_flag=True, help="Run on CPU")
 
 

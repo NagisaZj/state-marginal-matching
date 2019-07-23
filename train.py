@@ -23,8 +23,9 @@ def experiment(variant):
     num_skills = variant['smm_kwargs']['num_skills'] if variant['intrinsic_reward'] == 'smm' else 0
     env, training_env = create_env(variant['env_id'], variant['env_kwargs'], num_skills)
     obs_dim = env.observation_space.low.size
-    action_dim = env.action_space.low.size
 
+    action_dim = env.action_space.low.size
+    print(obs_dim,action_dim,'aaaaa')
     # Initialize networks.
     net_size = variant['net_size']
     qf = FlattenMlp(

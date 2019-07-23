@@ -12,10 +12,9 @@ def pprint():
             plt.plot(a[:-1, 0], a[:-1, 1], '-', color='g')
             plt.plot(a[-1, 0], a[-1, 1], '-x', color='b')
 
-            b = np.linspace(0, np.pi, 100)
-
-            xs = np.cos(b)
-            ys = np.sin(b)
+            b = np.linspace(0, 1*np.pi, 100)
+            xs = np.cos(b)*1.5
+            ys = np.sin(b)*1.5
             plt.plot(xs, ys, color='r')
 
     plt.show()
